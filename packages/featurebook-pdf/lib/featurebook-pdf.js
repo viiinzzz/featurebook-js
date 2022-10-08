@@ -1,34 +1,140 @@
+require('colors');
 const fs = require('fs');
 const path = require('path');
-const api = require('@jkroepke/featurebook-api');
-const FeaturebookPdfGenerator = require('./featurebook-pdf-generator');
+const opener = require('opener');
+const YAML = require('yaml');
 
-const pdf = async (specDir, outputDir) => {
-  const outputFile = path.join(outputDir, 'specification.pdf');
-  const metadata = await api.readMetadata(specDir) || {};
+const {
+  FeaturebookPdfGenerator,
+  Debug: FeaturebookPdfGeneratorDebug,
+} = require('./featurebook-pdf-generator');
 
-  fs.mkdirSync(outputDir, { recursive: true });
+const use = require('./use')('../package.json');
 
-  const fonts = {
-    Anaheim: {
-      normal: path.join(__dirname, '..', 'resources/fonts', 'Anaheim-Regular.ttf'),
-      bold: path.join(__dirname, '..', 'resources/fonts', 'Anaheim-Regular.ttf'),
-      italics: path.join(__dirname, '..', 'resources/fonts', 'Anaheim-Regular.ttf'),
-      bolditalics: path.join(__dirname, '..', 'resources/fonts', 'Anaheim-Regular.ttf'),
-    },
-  };
+const {
+  debug,
+  sqbr,
+  log,
+  logDebug,
+  logWarning,
+  logError,
+  Debug,
+} = require('./log')({
+  // DebugValue: true,
+  // eslint-disable-next-line no-shadow
+  DebugSetup: (debug) => FeaturebookPdfGeneratorDebug(debug),
+});
 
-  const doc = new FeaturebookPdfGenerator(specDir, fonts);
-  doc.setDocumentDefinition({});
-  doc.setMetadata(metadata);
-
-  const specTree = await api.readSpecTree(specDir);
-
-  doc.printIndex(specTree);
-
-  await doc.printNode(specTree);
-
-  doc.generate(outputFile);
+let api;
+let libLoaded = false;
+const loadLib = async () => {
+  if (libLoaded) return;
+  api = await use('featurebook-api');
+  Debug(debug, api);
+  libLoaded = true;
 };
 
-module.exports = pdf;
+const fonts = {
+  Anaheim: {
+    normal: path.join(__dirname, '../resources/fonts/Anaheim-Regular.ttf'),
+    bold: path.join(__dirname, '../resources/fonts/Anaheim-Regular.ttf'),
+    italics: path.join(__dirname, '../resources/fonts/Anaheim-Regular.ttf'),
+    bolditalics: path.join(__dirname, '../resources/fonts/Anaheim-Regular.ttf'),
+  },
+};
+
+const gen = async (featuresDir, outputDir, options) => {
+  await loadLib();
+
+  try {
+    const metadata = await api.readMetadata(featuresDir) || {};
+
+    const doc = new FeaturebookPdfGenerator({
+      featuresDir,
+      fonts,
+      outputExt: options ? options.graphics : undefined,
+    });
+    doc.setDocumentDefinition({});
+    doc.setMetadata(metadata);
+
+    const specTree = await api.readSpecTree(featuresDir);
+
+    doc.printIndex(specTree);
+
+    await doc.printNode(specTree);
+
+    return doc;
+  } catch (err) {
+    logError(`pdf gen failure
+`, err);
+    return undefined;
+  }
+};
+
+const saveDryRun = async (featuresDir, outputDir, options) => {
+  const doc = await gen(featuresDir, outputDir, options);
+  if (!doc) throw new Error('pdf gen failure');
+
+  const outputFile = path.join(outputDir, 'specification.pdf');
+  try {
+    const { docDefinition } = doc;
+    const dryRunOutput = YAML.stringify(JSON.parse(JSON.stringify(
+      { docDefinition },
+    )));
+    console.log(
+      '---dry-run---\n',
+      dryRunOutput
+        .replace(/(\s+data:[^;]+;base64,).*/g, '$1...')
+        // .replace(/(\s*data: .*)/g, '$1'.green),
+    );
+  } catch (err) {
+    const code = err.code ? ` (${err.code})` : '';
+    logError(
+      `pdf save failure${code}
+${outputFile.gray}
+${err.code ? '' : err.message}`,
+      err,
+    );
+    return;
+  }
+
+  log(`${outputFile.gray}
+done.`);
+};
+
+const save = async (featuresDir, outputDir, options) => {
+  if (options.dryRun) {
+    saveDryRun(featuresDir, outputDir, options);
+    return;
+  }
+
+  const doc = await gen(featuresDir, outputDir, options);
+  if (!doc) return;
+
+  const outputFile = path.join(outputDir, 'specification.pdf');
+  try {
+    fs.mkdirSync(outputDir, { recursive: true });
+
+    await doc.save(outputFile);
+  } catch (err) {
+    const code = err.code ? ` (${err.code})` : '';
+    logError(
+      `pdf save failure${code}
+${outputFile.gray}
+${err.code ? '' : err.message}`,
+      err,
+    );
+    return;
+  }
+
+  log(`${outputFile.gray}
+done.`);
+  if (options.open) {
+    opener(outputFile);
+  }
+};
+
+module.exports = {
+  Invoke: save,
+  Debug,
+};

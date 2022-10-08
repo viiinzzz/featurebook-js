@@ -1,6 +1,6 @@
 {
-  "name": "@jkroepke/featurebook-html",
-  "version": "2.0.1",
+  "name": "@viiinzzz/featurebook-html",
+  "version": "3.0.0-b.6",
   "description": "FeatureBook's HTML converter",
   "main": "index.js",
   "files": [
@@ -29,11 +29,16 @@
     "markdown"
   ],
   "author": {
-    "name": "Jan-Otto Kröpke",
-    "email": "npm@jkropke.de",
-    "url": "https://github.com/jkroepke/"
+    "name": "Vincent Fontaine",
+    "email": "vincentfontaine.jobs@gmail.com",
+    "url": "https://github.com/viiinzzz/"
   },
   "contributors": [
+    {
+      "name": "Jan-Otto Kröpke",
+      "email": "npm@jkropke.de",
+      "url": "https://github.com/jkroepke/"
+    },
     {
       "name": "Daniel Pacak",
       "email": "pacak.daniel@gmail.com"
@@ -44,7 +49,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "github:jkroepke/featurebook-js",
+    "url": "github:viiinzzz/featurebook-js",
     "directory": "packages/featurebook-html"
   },
   "engines": {
@@ -52,16 +57,15 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@jkroepke/featurebook-api": "^2.0.1",
-    "@jkroepke/featurebook-markdown": "^2.0.0",
+    "@viiinzzz/featurebook-api": "^3.0.0-b.6",
+    "@viiinzzz/featurebook-markdown": "^3.0.0-b.6",
     "colors": "^1.4.0",
-    "fs-extra": "^8.1.0",
-    "pug": "^2.0.4"
+    "fs-extra": "^10.1.0",
+    "pug": "^3.0.2"
   },
   "devDependencies": {
-    "chai": "^4.2.0",
-    "mocha": "^7.0.1",
-    "nyc": "^15.0.0"
-  },
-  "gitHead": "d95165a5fdf5501ec668955acaf21c60801da1c2"
+    "chai": "^4.3.6",
+    "mocha": "^10.0.0",
+    "nyc": "^15.1.0"
+  }
 }

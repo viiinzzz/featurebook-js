@@ -1,19 +1,17 @@
-'use strict';
+describe('SummaryController', () => {
+  let $controller;
 
-describe('SummaryController', function () {
+  beforeEach(() => {
+    module('scFeatureBook');
 
-    var $controller;
-
-    beforeEach(function () {
-        module('scFeatureBook');
-
-        inject(function (_$controller_) {
-            $controller = _$controller_;
-        });
+    inject((_$controller_) => {
+      $controller = _$controller_;
     });
+  });
 
-    describe('#$activate', function () {
-        // TODO Implement me
-    });
+  describe('#$activate', () => {
+    it('is not implemented', () => { });
+
+  });
 
 });

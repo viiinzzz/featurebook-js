@@ -10,10 +10,12 @@
         "eslint:recommended",
         "airbnb-base"
     ],
+    //"parser": "babel-eslint",
     "parserOptions": {
         "ecmaVersion": 2019
     },
     "rules": {
+        "linebreak-style": ["error", "unix"],
         "no-console": "off",
         "no-restricted-syntax": ["error", "LabeledStatement", "WithStatement", "BinaryExpression[operator='in']"]
     },

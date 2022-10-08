@@ -8,8 +8,21 @@ const { version } = require('../package.json');
 
 const getVersion = () => version;
 
-const readMetadata = async (specDir) => {
-  const metadataFile = path.join(specDir, constants.DEFAULT_METADATA_FILE_NAME);
+const {
+  debug,
+  log,
+  logDebug,
+  logWarning,
+  logError,
+  Debug,
+} = require('./log')({
+  // DebugValue: true,
+  // eslint-disable-next-line no-shadow, no-unused-vars
+  DebugSetup: (debug) => { },
+});
+
+const readMetadata = async (featuresDir) => {
+  const metadataFile = path.join(featuresDir, constants.DEFAULT_METADATA_FILE_NAME);
 
   try {
     await fsPromises.stat(metadataFile);
@@ -21,7 +34,7 @@ const readMetadata = async (specDir) => {
     const fileContent = await fsPromises.readFile(metadataFile, constants.DEFAULT_FILE_ENCODING);
     return JSON.parse(fileContent.toString());
   } catch (e) {
-    console.error(e);
+    logError(e);
     return {};
   }
 };
@@ -30,7 +43,7 @@ const readFeatures = async (featureFile, options) => {
   try {
     return await gherkin.parse(featureFile, options);
   } catch (e) {
-    console.error(e);
+    logError(e);
     return [];
   }
 };
@@ -47,7 +60,7 @@ const readSummary = async (dir) => {
   try {
     return await fsPromises.readFile(summaryFile, constants.DEFAULT_FILE_ENCODING);
   } catch (e) {
-    console.error(e);
+    logError(e);
     return null;
   }
 };
@@ -66,7 +79,7 @@ const getDisplayNameOverwrite = async (featureFile) => {
   return null;
 };
 
-const processSpecTree = async (specDir, specTree) => {
+const processSpecTree = async (featuresDir, specTree) => {
   const traverse = async (file) => {
     const node = {
       ...file,
@@ -75,7 +88,7 @@ const processSpecTree = async (specDir, specTree) => {
 
     if (file.type === 'file') {
       try {
-        const displayNameOverride = await getDisplayNameOverwrite(path.join(specDir, node.path));
+        const displayNameOverride = await getDisplayNameOverwrite(path.join(featuresDir, node.path));
         if (displayNameOverride) {
           node.displayName = displayNameOverride;
         }
@@ -104,9 +117,9 @@ const processSpecTree = async (specDir, specTree) => {
   return traverse({ ...specTree });
 };
 
-const readSpecTree = async (specDir) => {
+const readSpecTree = async (featuresDir) => {
   const ig = ignore().add(constants.DEFAULT_IGNORE_PATTERNS);
-  const ignoreFile = path.join(specDir, constants.DEFAULT_IGNORE_FILE_NAME);
+  const ignoreFile = path.join(featuresDir, constants.DEFAULT_IGNORE_FILE_NAME);
 
   try {
     await fsPromises.stat(ignoreFile);
@@ -115,17 +128,17 @@ const readSpecTree = async (specDir) => {
       const fileContent = await fsPromises.readFile(ignoreFile);
       ig.add(fileContent.toString());
     } catch (e) {
-      console.error(e);
+      logError(e);
     }
   } catch (e) {
     // ignore
   }
 
   try {
-    const specTree = await helpers.findInDir(specDir, ig.createFilter());
-    return await processSpecTree(specDir, specTree);
+    const specTree = await helpers.findInDir(featuresDir, ig.createFilter());
+    return await processSpecTree(featuresDir, specTree);
   } catch (e) {
-    console.error(e);
+    logError(e);
     return {};
   }
 };
@@ -136,4 +149,5 @@ module.exports = {
   readMetadata,
   readFeatures,
   readSummary,
+  Debug
 };

@@ -1,17 +1,17 @@
 {
-  "name": "@jkroepke/featurebook",
-  "version": "2.0.1",
+  "name": "@viiinzzz/featurebook",
+  "version": "3.0.0-b.6",
   "description": "A command line tool (and Node.js library) for generating beautiful system specifications from Gherkin source files.",
   "bin": {
     "featurebook": "./bin/featurebook.js"
   },
   "files": [
-    "/bin",
-    "/cmds"
+    "/bin"
   ],
   "preferGlobal": true,
   "scripts": {
-    "test": "mocha"
+    "test": "cross-env LOCAL_ENVIRONMENT=test jest --coverage",
+    "testprint": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js print --open -o ../features/dist/pdf ../features"
   },
   "keywords": [
     "gherkin",
@@ -30,11 +30,16 @@
     "markdown"
   ],
   "author": {
-    "name": "Jan-Otto Kröpke",
-    "email": "npm@jkropke.de",
-    "url": "https://github.com/jkroepke/"
+    "name": "Vincent Fontaine",
+    "email": "vincentfontaine.jobs@gmail.com",
+    "url": "https://github.com/viiinzzz/"
   },
   "contributors": [
+    {
+      "name": "Jan-Otto Kröpke",
+      "email": "npm@jkropke.de",
+      "url": "https://github.com/jkroepke/"
+    },
     {
       "name": "Daniel Pacak",
       "email": "pacak.daniel@gmail.com"
@@ -45,29 +50,29 @@
   },
   "repository": {
     "type": "git",
-    "url": "github:jkroepke/featurebook-js",
+    "url": "github:viiinzzz/featurebook-js",
     "directory": "packages/featurebook"
   },
   "bugs": {
-    "url": "https://github.com/jkroepke/featurebook-js/issues"
+    "url": "https://github.com/viiinzzz/featurebook-js/issues"
   },
   "license": "MIT",
   "engines": {
     "node": ">= 8"
   },
   "dependencies": {
-    "@jkroepke/featurebook-api": "^2.0.1",
+    "@viiinzzz/featurebook-api": "^3.0.0-b.6",
+    "@viiinzzz/featurebook-html": "^3.0.0-b.6",
+    "@viiinzzz/featurebook-pdf": "^3.0.0-b.6",
+    "@viiinzzz/featurebook-scrum": "^3.0.0-b.6",
+    "@viiinzzz/featurebook-serve": "^3.0.0-b.6",
     "colors": "^1.4.0",
-    "opener": "^1.5.1",
-    "yargs": "^15.1.0"
-  },
-  "optionalDependencies": {
-    "@jkroepke/featurebook-html": "^2.0.1",
-    "@jkroepke/featurebook-pdf": "^2.0.1",
-    "@jkroepke/featurebook-serve": "^2.0.1"
+    "commander": "^9.4.1",
+    "cross-env": "^7.0.3",
+    "opener": "^1.5.2"
   },
   "devDependencies": {
-    "mocha": "^7.0.1"
-  },
-  "gitHead": "d95165a5fdf5501ec668955acaf21c60801da1c2"
+    "@jest/globals": "^29.2.2",
+    "chai": "^4.3.6"
+  }
 }

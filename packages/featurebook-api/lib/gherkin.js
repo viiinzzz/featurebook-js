@@ -1,48 +1,68 @@
-const gherkin = require('gherkin').default;
+require('colors');
+const path = require('path');
+const {
+  Parser, AstBuilder,
+  GherkinClassicTokenMatcher,
+} = require('@cucumber/gherkin');
+const fsp = require('fs/promises');
 
-const getParsedGherkin = (featureFile, options) => new Promise((resolve, reject) => {
-  const stream = gherkin.fromPaths([featureFile], options);
-  const data = [];
-
-  stream.on('error', (e) => {
-    console.error(e);
-    reject(e);
-  });
-
-  stream.on('data', (chunk) => {
-    if (Object.prototype.hasOwnProperty.call(chunk, 'source')) {
-      data.push({ source: chunk.source, pickles: [] });
-    } else if (Object.prototype.hasOwnProperty.call(chunk, 'gherkinDocument')) {
-      data[data.length - 1] = {
-        ...data[data.length - 1],
-        ...chunk.gherkinDocument,
-      };
-    } else if (Object.prototype.hasOwnProperty.call(chunk, 'pickle')) {
-      data[data.length - 1].pickles.push(chunk.pickle);
-    } else {
-      console.error('Unknown chunk');
-      console.error(chunk);
-    }
-  });
-
-  stream.on('end', () => {
-    resolve(data);
-  });
+const {
+  debug,
+  log,
+  logDebug,
+  logWarning,
+  logError,
+  Debug,
+} = require('./log')({
+  // DebugValue: true,
+  // eslint-disable-next-line no-shadow, no-unused-vars
+  DebugSetup: (debug) => { },
 });
 
-const parse = async (featureFile, options) => {
-  const defaultOptions = {
-    includeSource: true,
-    includeGherkinDocument: true,
-    includePickles: false,
-  };
+let Id = 0;
+const newId = () => {
+  const ret = Id;
+  Id += 1;
+  return ret;
+};
 
-  return getParsedGherkin(featureFile, {
-    ...defaultOptions,
-    ...options,
-  });
+const parse = async (featureFile) => {
+  logDebug(`parsing...
+       ${featureFile.gray}`);
+
+  const ext = path.extname(featureFile);
+  const IsFeature = /\.feature/i.test(ext);
+  if (!IsFeature) {
+    console.warn(`${'warning:'.yellow} gherkin: parse\n       ${featureFile.gray} -- not a feature. skip.`);
+    return undefined;
+  }
+  if (debug) console.debug(`${'debug:'.green} gherkin: parse\n       ${featureFile.gray}`);
+  const text = await fsp.readFile(featureFile, 'utf8');
+
+  const builder = new AstBuilder(newId);
+  const matcher = new GherkinClassicTokenMatcher();
+  const parser = new Parser(builder, matcher);
+  //parser.stopAtFirstError = false;
+
+  try {
+    return parser.parse(text);
+  } catch (err) {
+    const parseError = /^Parser errors:/.test(err.message);
+    if (parseError) {
+      logError(`gherkin syntax error
+       ${featureFile.red}
+
+${err.message.replace(/^.*\n/, '').gray}
+`);
+    } else {
+      logError(`parse failure (${err.message})
+       ${featureFile.gray}`);
+    }
+    return { feature: {} };
+  }
 };
 
 module.exports = {
   parse,
+  Debug,
 };

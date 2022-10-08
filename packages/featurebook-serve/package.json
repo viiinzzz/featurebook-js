@@ -1,6 +1,6 @@
 {
-  "name": "@jkroepke/featurebook-serve",
-  "version": "2.0.1",
+  "name": "@viiinzzz/featurebook-serve",
+  "version": "3.0.0-b.6",
   "description": "FeatureBook's HTTP server",
   "main": "index.js",
   "files": [
@@ -32,11 +32,16 @@
     "markdown"
   ],
   "author": {
-    "name": "Jan-Otto Kröpke",
-    "email": "npm@jkropke.de",
-    "url": "https://github.com/jkroepke/"
+    "name": "Vincent Fontaine",
+    "email": "vincentfontaine.jobs@gmail.com",
+    "url": "https://github.com/viiinzzz/"
   },
   "contributors": [
+    {
+      "name": "Jan-Otto Kröpke",
+      "email": "npm@jkropke.de",
+      "url": "https://github.com/jkroepke/"
+    },
     {
       "name": "Daniel Pacak",
       "email": "pacak.daniel@gmail.com"
@@ -47,7 +52,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "github:jkroepke/featurebook-js",
+    "url": "github:viiinzzz/featurebook-js",
     "directory": "packages/featurebook"
   },
   "engines": {
@@ -55,22 +60,21 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@jkroepke/featurebook-api": "^2.0.1",
-    "@jkroepke/featurebook-markdown": "^2.0.0",
-    "express": "^4.17.1"
+    "@viiinzzz/featurebook-api": "^3.0.0-b.6",
+    "@viiinzzz/featurebook-markdown": "^3.0.0-b.6",
+    "express": "^4.18.2"
   },
   "devDependencies": {
-    "bower": "^1.8.8",
-    "chai": "^4.2.0",
-    "jasmine-core": "^3.5.0",
-    "karma": "^4.4.1",
-    "karma-coverage": "^2.0.1",
-    "karma-jasmine": "^3.1.1",
+    "bower": "^1.8.14",
+    "chai": "^4.3.6",
+    "jasmine-core": "^4.5.0",
+    "karma": "^6.4.1",
+    "karma-coverage": "^2.2.0",
+    "karma-jasmine": "^5.1.0",
     "karma-ng-html2js-preprocessor": "^1.0.0",
     "karma-phantomjs-launcher": "^1.0.4",
-    "mocha": "^7.0.1",
-    "nyc": "^15.0.0",
+    "mocha": "^10.1.0",
+    "nyc": "^15.1.0",
     "phantomjs-prebuilt": "^2.1.16"
-  },
-  "gitHead": "d95165a5fdf5501ec668955acaf21c60801da1c2"
+  }
 }

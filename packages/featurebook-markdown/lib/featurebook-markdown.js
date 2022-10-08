@@ -1,12 +1,29 @@
-const md = require('markdown-it')({
+const mdConfig = {
   html: true,
   linkify: true,
-});
+};
+
+require('colors');
+const path = require('path');
+const md = require('markdown-it')(mdConfig);
 const fromEntries = require('object.fromentries');
 
 if (!Object.fromEntries) {
   fromEntries.shim();
 }
+
+const {
+  debug,
+  log,
+  logDebug,
+  logWarning,
+  logError,
+  Debug,
+} = require('./log')({
+  // DebugValue: true,
+  // eslint-disable-next-line no-shadow, no-unused-vars
+  DebugSetup: (debug) => { },
+});
 
 const render = (text, markdownOptions) => {
   if (markdownOptions && markdownOptions.linkRenderer) {
@@ -79,4 +96,5 @@ module.exports = {
   descriptionMarkdownToHTML,
 
   render,
+  Debug,
 };

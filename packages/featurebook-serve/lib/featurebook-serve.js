@@ -1,9 +1,22 @@
 const path = require('path');
 const express = require('express');
-const api = require('@jkroepke/featurebook-api');
-const markdown = require('@jkroepke/featurebook-markdown');
 
 const { imageRenderer, linkRenderer } = require('./helper');
+const use = require('./use')('../package.json');
+
+const {
+  debug,
+  sqbr,
+  log,
+  logDebug,
+  logWarning,
+  logError,
+  Debug,
+} = require('./log')({
+  // DebugValue: true,
+  // eslint-disable-next-line no-shadow, no-unused-vars
+  DebugSetup: (debug) => { },
+});
 
 // --- REST API ---
 // http://localhost:3000/api/rest/raw/assets/images/hello_world.png
@@ -14,7 +27,10 @@ const { imageRenderer, linkRenderer } = require('./helper');
 // http://localhost:3000/api/rest/feature/non_technical%2Fload_testing.feature
 // ----------------
 
-const serve = async (specDir, port) => {
+const serve = async (featuresDir, port) => {
+  const api = await use('featurebook-api');
+  const markdown = await use('featurebook-markdown');
+
   const app = express();
 
   const markdownOptions = {
@@ -26,13 +42,13 @@ const serve = async (specDir, port) => {
   app.use('/', express.static(path.join(__dirname, '..', 'public')));
 
   // serve static raw files from the specification source dir directory
-  app.use('/api/rest/raw/', express.static(specDir, {
+  app.use('/api/rest/raw/', express.static(featuresDir, {
     index: false,
   }));
 
   app.get('/api/rest/metadata', async (req, res, next) => {
     try {
-      const metadata = await api.readMetadata(specDir);
+      const metadata = await api.readMetadata(featuresDir);
 
       return res.send(metadata);
     } catch (error) {
@@ -42,7 +58,7 @@ const serve = async (specDir, port) => {
 
   // returns parsed summary or 404 if SUMMARY.md is not present
   app.get('/api/rest/summary/:path?', async (req, res, next) => {
-    const summaryDir = req.params.path ? path.join(specDir, req.params.path) : specDir;
+    const summaryDir = req.params.path ? path.join(featuresDir, req.params.path) : featuresDir;
     try {
       const summary = await api.readSummary(summaryDir);
 
@@ -58,7 +74,7 @@ const serve = async (specDir, port) => {
 
   app.get('/api/rest/spec/tree', async (req, res, next) => {
     try {
-      const specTree = await api.readSpecTree(specDir);
+      const specTree = await api.readSpecTree(featuresDir);
       return res.send(specTree);
     } catch (error) {
       return next(error);
@@ -69,7 +85,7 @@ const serve = async (specDir, port) => {
     const responseBody = {};
 
     try {
-      const features = await api.readFeatures(path.join(specDir, req.params.path));
+      const features = await api.readFeatures(path.join(featuresDir, req.params.path));
 
       responseBody.status = 'success';
       responseBody.data = await markdown.descriptionMarkdownToHTML(features, markdownOptions);
@@ -83,15 +99,22 @@ const serve = async (specDir, port) => {
 
   // eslint-disable-next-line no-unused-vars
   app.use((err, req, res, next) => {
-    console.error(err.stack);
+    logError(err.stack);
     res.status(500).send({ error: err.message });
   });
 
-  await app.listen(port);
+  try {
+    await app.listen(port);
 
-  return app;
+    return app;
+  } catch (err) {
+    logError(err.message);
+  }
 };
 
-module.exports = serve;
+module.exports = {
+  Invoke: serve,
+  Debug
+};
 serve.$imageRenderer = imageRenderer;
 serve.$linkRenderer = linkRenderer;

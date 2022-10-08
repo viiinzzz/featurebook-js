@@ -1,0 +1,41 @@
+{
+  "name": "@viiinzzz/featurebook-feature",
+  "version": "3.0.0-b.6",
+  "description": "A command to display cucumber features",
+  "files": [
+    "/lib"
+  ],
+  "preferGlobal": true,
+  "scripts": {
+  },
+  "author": {
+    "name": "Vincent Fontaine",
+    "email": "vincentfontaine.jobs@gmail.com",
+    "url": "https://github.com/viiinzzz/"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github:viiinzzz/featurebook-js",
+    "directory": "packages/featurebook-featurebook"
+  },
+  "bugs": {
+    "url": "https://github.com/viiinzzz/featurebook-js/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">= 16"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "^8.7.0",
+    "colors": "^1.4.0",
+    "cucumber": "^6.0.7",
+    "globby": "^13.1.2",
+    "jest-cucumber": "^3.0.1"
+  },
+  "devDependencies": {
+    "open-cli": "^7.1.0"
+  }
+}

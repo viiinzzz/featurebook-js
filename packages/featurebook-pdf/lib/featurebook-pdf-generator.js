@@ -1,14 +1,58 @@
-const color = require('colors/safe');
+require('colors');
 const fs = require('fs');
 const path = require('path');
-const api = require('@jkroepke/featurebook-api');
+const { pipeline } = require('stream/promises');
+
 const PdfPrinter = require('pdfmake');
-const markdown2pdfmake = require('markdown2pdfmake');
+
+const {
+  getParts,
+  IsImagePart,
+  getImageData,
+  clearCache,
+  Debug: mdPartImageDebug,
+} = require('./mdPartImage');
+
+const maxImageWidth = 505;
+
+const {
+  debug,
+  sqbr,
+  log,
+  logDebug,
+  logWarning,
+  logError,
+  Debug,
+} = require('./log')({
+  // DebugValue: true,
+  // eslint-disable-next-line no-shadow, no-unused-vars
+  DebugSetup: (debug) => mdPartImageDebug(debug),
+});
+
+let libLoaded = false;
+let api;
+// eslint-disable-next-line import/newline-after-import
+const use = require('./use')('../package.json');
+const loadLib = async () => {
+  if (libLoaded) return;
+  api = await use('featurebook-api');
+  libLoaded = true;
+};
+
+const cucumberIconName = 'cucumber128.png';
+const cucumberIconId = 'cucumber';
+const cucumberIcon = `data:image/png;base64,${fs.readFileSync(
+  path.join(__dirname, cucumberIconName), 'base64')}`;
+
+const buildinImages = {
+  [cucumberIconId]: cucumberIcon,
+};
 
 class FeaturebookPdfGenerator {
-  constructor(specDir, fonts) {
-    this.specDir = specDir;
+  constructor({ featuresDir, fonts, outputExt }) {
+    this.featuresDir = featuresDir;
     this.printer = new PdfPrinter(fonts);
+    this.outputExt = outputExt || 'png';
   }
 
   setDocumentDefinition(styles = {}) {
@@ -51,6 +95,8 @@ class FeaturebookPdfGenerator {
           bold: true,
         },
       ],
+
+      images: buildinImages,
     };
   }
 
@@ -59,7 +105,7 @@ class FeaturebookPdfGenerator {
     this.docDefinition.footer[2].text = metadata.title ? metadata.title : 'Untitled';
 
     if (Object.prototype.hasOwnProperty.call(metadata, 'authors')) {
-      this.docDefinition.info.Author = metadata.authors.map(FeaturebookPdfGenerator.formatName).join(', ');
+      this.docDefinition.info.Author = metadata.authors.map(this.formatName).join(', ');
     }
 
     this.printTitle(metadata);
@@ -73,10 +119,25 @@ class FeaturebookPdfGenerator {
     }
   }
 
-  generate(file) {
+  async save(file) {
     const pdfDoc = this.printer.createPdfKitDocument(this.docDefinition);
-    pdfDoc.pipe(fs.createWriteStream(file));
+    const stream = fs.createWriteStream(file);
     pdfDoc.end();
+    await pipeline(
+      pdfDoc,
+      stream,
+    );
+  }
+
+  /*
+   * print methods
+   */
+
+  // eslint-disable-next-line class-methods-use-this
+  formatName(person) { return `${person.lastName}, ${person.firstName}`; }
+
+  async printFeatureIcon(options = {}, returnPrint = false) {
+    return this.printMarkdown(`![feature](!${cucumberIconId})`, options, null, returnPrint);
   }
 
   printIndex() {
@@ -103,33 +164,39 @@ class FeaturebookPdfGenerator {
   }
 
   async printFeature(node) {
+    await loadLib();
+
     try {
-      const features = await api.readFeatures(path.join(this.specDir, node.path));
+      const features = await api.readFeatures(path.join(this.featuresDir, node.path));
 
-      for (const feature of features) {
-        this.docDefinition.content.push({
-          text: [
-            { text: `${feature.feature.keyword.trim()}:`, color: 'red', fontSize: 16 },
-            { text: ` ${feature.feature.name}`, fontSize: 16 },
-          ],
-          margin: [0, 10, 0, 5],
-        });
+      logDebug('features', [features]);
 
+      await Promise.all([features].map(async (feature) => {
+        // display cucumber icon
+        // TODO display as a bullet
+        await this.printFeatureIcon(null);
+
+        const featureKeyword = { text: `${feature.feature.keyword.trim()}:`, color: 'red', fontSize: 16 };
+        const featureName = { text: ` ${feature.feature.name}`, fontSize: 16 };
+        const text = [featureKeyword, featureName];
+        const margin = [0, 10, 0, 5];
+        this.docDefinition.content.push({ text, margin });
         if (feature.feature.description) {
           this.printMarkdown(feature.feature.description);
         }
 
-        for (const children of feature.feature.children) {
+        await Promise.all(feature.feature.children.map(async (children) => {
           if (children.background) {
             this.printBackground(children.background);
           } else if (children.scenario) {
             // eslint-disable-next-line no-await-in-loop
             await this.printScenarioDefinition(children.scenario);
           }
-        }
-      }
+        }));
+      }));
     } catch (err) {
-      console.warn(color.red('Error printing feature `%s`: %s'), node.path, err);
+      logError(`printing feature. ${err.message}
+path: ${node.path.gray}`);
     }
   }
 
@@ -213,37 +280,73 @@ class FeaturebookPdfGenerator {
     });
   }
 
-  printMarkdown(markdown, options = {}) {
-    const markdownImage = /(!\[.+]\([^)]+\))/g;
+  async printMarkdown(markdown, options = {}, basedir = undefined, returnPrint = false) {
+    const markdown2pdfmake = await use('markdown2pdfmake');
+    const basedir2 = basedir || path.join(process.cwd(), this.featuresDir, '/');
 
-    const parts = markdown
-      .split(markdownImage).map((e) => e.trim()).filter(Boolean);
+    const images = {};
+    const elements = await getParts(markdown)
+      // sequentially asynchronous
+      .reduce((last, part) => last.then(async () => {
+        // eslint-disable-next-line no-shadow
+        const basedir = basedir2;
+        let element = {};
+        const { IsImage, imageId } = IsImagePart({ part, basedir });
+        if (IsImage) {
+          if (!images[imageId]) {
+            const { image } = await getImageData({ part, basedir, outputExt: this.outputExt });
+            if (image) images[imageId] = image;
+          }
+          element = {
+            maxWidth: maxImageWidth,
+            image: imageId,
+          };
+          if (debug) logDebug(`pdf: include\n       ${part.gray}`);
+        } else {
+          element = markdown2pdfmake(part)
+            .map((paragraph) => [{ ...paragraph, ...options }]);
+        }
 
-    for (const markdownPart of parts) {
-      const body = markdownPart.match(markdownImage)
-        ? [[{
-          image: markdownPart
-            .replace(/!\[.+]\(([^)]+)\)/, '$1')
-            .replace('asset://', path.join(process.cwd(), this.specDir, '/')),
-          maxWidth: 505,
-        }]]
-        : markdown2pdfmake(markdownPart).map((paragraph) => ([{ ...paragraph, ...options }]));
+        const ret = {
+          table: {
+            headerRows: 0,
+            widths: ['*'],
+            // body: [...body],
+            body: [[element]],
+          },
+          layout: {
+            defaultBorder: false,
+            fillColor: '#ddd',
+          },
+        };
+        return [...await last, ret];
+      }), Promise.resolve([]));
 
-      this.docDefinition.content.push({
-        table: {
-          headerRows: 0,
-          widths: ['*'],
-          body: [...body],
-        },
-        layout: {
-          defaultBorder: false,
-          fillColor: '#ddd',
-        },
-      });
+    let ret = null;
+    if (returnPrint) ret = elements;
+    else this.docDefinition.content.push(...elements);
+    // console.warn({ images });
+    this.docDefinition.images = {
+      ...this.docDefinition.images ? this.docDefinition.images : {},
+      ...images,
+    };
+
+    // if (debug) logDebug(`elements`, elements.map((e) => e.table.body[0][0]));
+    if (debug) {
+      logDebug('images', Object.entries(this.docDefinition.images)
+        .map(([id, data]) => ({
+          id,
+          data: data && data.substring ? data.substring(0, 50) : data,
+        })));
     }
+
+    clearCache();
+    return ret;
   }
 
   async printDirectory(node) {
+    await loadLib();
+
     const nodePath = node.path.split('/');
     const headerLevel = nodePath.length;
 
@@ -257,13 +360,14 @@ class FeaturebookPdfGenerator {
       tocMargin: headerLevel === 1 ? [0, 10, 0, 0] : 0,
     });
 
-    const summary = await api.readSummary(path.join(this.specDir, node.path));
+    const basedir = path.join(process.cwd(), this.featuresDir, node.path);
+    const summary = await api.readSummary(basedir);
     if (summary) {
-      this.printMarkdown(summary);
+      await this.printMarkdown(summary, {}, basedir);
     }
   }
 
-  printBackground(background) {
+  async printBackground(background) {
     this.docDefinition.content.push({
       text: [
         { text: `${background.keyword.trim()}:`, color: 'red', fontSize: 14 },
@@ -273,7 +377,7 @@ class FeaturebookPdfGenerator {
     });
 
     if (background.description) {
-      this.printMarkdown(background.description);
+      await this.printMarkdown(background.description);
     }
 
     for (const step of background.steps) {
@@ -281,7 +385,7 @@ class FeaturebookPdfGenerator {
     }
   }
 
-  printExample(example) {
+  async printExample(example) {
     this.docDefinition.content.push({
       text: [
         { text: `${example.keyword.trim()}:`, color: 'red', fontSize: 14 },
@@ -291,11 +395,14 @@ class FeaturebookPdfGenerator {
     });
 
     if (example.description) {
-      this.printMarkdown(example.description);
+      await this.printMarkdown(example.description);
     }
 
     this.printTable(example.tableHeader, example.tableBody);
   }
 }
 
-module.exports = FeaturebookPdfGenerator;
+module.exports = {
+  FeaturebookPdfGenerator,
+  Debug,
+};

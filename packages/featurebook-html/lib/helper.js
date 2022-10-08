@@ -1,6 +1,4 @@
-const markdown = require('@jkroepke/featurebook-markdown');
-
-const getImageRenderer = (pathPrefix) => (attrs) => {
+const getImageRenderer = (pathPrefix, markdown) => (attrs) => {
   let { src } = attrs;
 
   if (src.startsWith(markdown.ASSET_URL_SCHEMA)) {
@@ -13,7 +11,7 @@ const getImageRenderer = (pathPrefix) => (attrs) => {
   };
 };
 
-const getLinkRenderer = (pathPrefix) => (attrs) => {
+const getLinkRenderer = (pathPrefix, markdown) => (attrs) => {
   let { href } = attrs;
 
   if (href.startsWith(markdown.FEATURE_URL_SCHEMA)) {

@@ -12,4 +12,7 @@ describe('featureBookService', function () {
         });
     });
 
+  it('is not implemented', () => { });
+
+
 });

@@ -1,0 +1,36 @@
+graph TD
+  Ma[Marcellus]
+  Be[Bernardo]
+  OH{Old Hamlet / Ghost}
+  Ma -->|see| OH
+  Be -->|see| OH
+  Ho[Horacio]
+  Ho -->|investigate| OH
+  Ho -->|see| OH
+  Fo[Fortinbras]
+  OH -->|killed| Fo
+  Kc[King Claudius]
+  Kc -->|brother| OH
+  Ge[Gertrude]
+  Ge -->|wife| OH
+  Kc -->|marries| Ge
+  Ha[Hamlet]
+  Ha -->|father| OH
+  Ha -->|mother| Ge
+  Cl[Claudius]
+  La[Laertes]
+  Cl -->|authorize| La
+  Cl -->|talks to| Ha
+  Ha -->|hate| Ge
+  Ho -->|tells| Ha
+  Op[Ophelia]
+  Po[Polonius]
+  Ha -->|court| Op
+  Ho -->|sister| Op
+  Ho -->|stop| Op
+  Po -->|stop| Op
+  OH -->|callforrevenge| Ha
+  Cl -->|poison| OH
+  Cl -->|seduce| Ge
+  Ha -->|explain| Ho
+  Ha -->|explain| Ma

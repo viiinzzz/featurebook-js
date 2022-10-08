@@ -4,9 +4,9 @@ const chai = require('chai');
 
 const { expect } = chai;
 
-const featurebook = require('./../lib/featurebook-api');
+const featurebook = require('../lib/featurebook-api');
 
-const { version } = require('./../package.json');
+const { version } = require('../package.json');
 
 function expectSampleFeature(feature) {
   expect(feature.type).to.equal('Feature');

@@ -1,27 +1,34 @@
+viiizzz fork
+============
+Adding featurebook-scrum to display and track features based on @tags
+
+
 FeatureBook
 ===========
 
-[![Build Status](https://github.com/jkroepke/featurebook-js/workflows/CI/badge.svg)](https://github.com/jkroepke/featurebook-js)
-[![npm](https://img.shields.io/npm/dw/@jkroepke/featurebook)](https://www.npmjs.com/package/@jkroepke/featurebook)
-[![npm version](https://img.shields.io/npm/v/@jkroepke/featurebook)](https://www.npmjs.com/package/@jkroepke/featurebook)
-[![dependencies Status](https://david-dm.org/jkroepke/featurebook-js/status.svg?path=packages/featurebook)](https://david-dm.org/jkroepke/featurebook-js?path=packages/featurebook)
-[![Code Climate](https://codeclimate.com/github/jkroepke/featurebook-js/badges/gpa.svg)](https://codeclimate.com/github/jkroepke/featurebook-js)
-[![Test Coverage](https://codeclimate.com/github/jkroepke/featurebook-js/badges/coverage.svg)](https://codeclimate.com/github/jkroepke/featurebook-js/coverage)
+[![Build Status](https://github.com/viiinzzz/featurebook-js/workflows/CI/badge.svg)](https://github.com/viiinzzz/featurebook-js)
+[![npm](https://img.shields.io/npm/dw/@viiinzzz/featurebook)](https://www.npmjs.com/package/@viiinzzz/featurebook)
+[![npm version](https://img.shields.io/npm/v/@viiinzzz/featurebook)](https://www.npmjs.com/package/@viiinzzz/featurebook)
+[![dependencies Status](https://david-dm.org/viiinzzz/featurebook-js/status.svg?path=packages/featurebook)](https://david-dm.org/viiinzzz/featurebook-js?path=packages/featurebook)
+[![Code Climate](https://codeclimate.com/github/viiinzzz/featurebook-js/badges/gpa.svg)](https://codeclimate.com/github/viiinzzz/featurebook-js)
+[![Test Coverage](https://codeclimate.com/github/viiinzzz/featurebook-js/badges/coverage.svg)](https://codeclimate.com/github/viiinzzz/featurebook-js/coverage)
 [![lerna](https://img.shields.io/badge/maintained%20with-lerna-cc00ff.svg)](https://lerna.js.org/)
 
-* [Introduction](#introduction)
-* [Rationale](#rationale)
-* [Usage](#usage)
-* [Specification format](#specification-format)
- * [Gherkin source files](#gherkin-source-files)
- * [featurebook.json](#featurebookjson)
- * [.featurebookignore](#featurebookignore)
- * [SUMMARY.md](#summarymd)
-* [Public API](#public-api)
-* [Development environment](#development-environment)
-* [Contributing](#contributing)
-* [Project roadmap](#project-roadmap)
-* [License](#license)
+- [viiizzz fork](#viiizzz-fork)
+- [FeatureBook](#featurebook)
+  - [Introduction](#introduction)
+  - [Rationale](#rationale)
+  - [Usage](#usage)
+  - [Specification format](#specification-format)
+    - [Gherkin source files](#gherkin-source-files)
+    - [featurebook.json](#featurebookjson)
+    - [.featurebookignore](#featurebookignore)
+    - [SUMMARY.md](#summarymd)
+  - [Public API](#public-api)
+  - [Development environment](#development-environment)
+    - [npm packages](#npm-packages)
+  - [Contributing](#contributing)
+  - [License](#license)
 
 ## Introduction
 
@@ -65,7 +72,7 @@ Before installing FeatureBook, you will need the following:
 FeatureBook can be installed (or updated if it's already installed) from npm:
 
 ```shell
-$ npm install -g @jkroepke/featurebook
+$ npm install -g @viiinzzz/featurebook
 ```
 
 You can serve the current directory as a system specification:
@@ -252,7 +259,7 @@ public API.
 
 > To try out the latest development version clone this repository and [link](https://docs.npmjs.com/cli/link) the featurebook package:
 > ```
-> $ git clone https://github.com/jkroepke/featurebook-js.git && cd featurebook && npm link
+> $ git clone https://github.com/viiinzzz/featurebook-js.git && cd featurebook && npm link
 > ```
 
 ### npm packages

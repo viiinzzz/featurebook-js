@@ -1,4 +1,4 @@
-const markdown = require('@jkroepke/featurebook-markdown');
+const markdown = require('@viiinzzz/featurebook-markdown');
 
 const imageRenderer = (attrs) => {
   const addAssetPrefix = (url) => `api/rest/raw${url.startsWith('/') ? '' : '/'}${url.substring(markdown.ASSET_URL_SCHEMA.length)}`;

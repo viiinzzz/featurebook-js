@@ -1,0 +1,14 @@
+{
+    "title": "Specifications of “Hamlet”",
+    "version": "v1.0",
+    "authors": [{
+        "firstName": "William",
+        "lastName": "Shakespeare",
+        "email": "bard.avon@gmail.com"
+    }],
+    "contributors": [{
+        "firstName": "Richard",
+        "lastName": "Burbage",
+        "email": "earl.leicester@gmail.com"
+    }]
+}

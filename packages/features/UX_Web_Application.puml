@@ -1,0 +1,26 @@
+@startuml
+' (c) XXXX, 2999
+salt
+{
+
+  title  <size:15><&plus>The Application
+  scale 2
+  {+
+    {
+      Nom | "Javascript"
+      Illustration | { <size:150><&camera-slr>  | [Browse...] | [remove] }
+      Description | {S
+                    .
+                    the (in)famous language invented by Brendan Eich       ,
+                    later standardised as ECMA Script (ES)                 .
+                    .
+                    }
+    }
+    {
+      Start | "1995" | ^year^
+      Developers | "25" | ^Millions^
+    }
+  }
+
+}
+@enduml

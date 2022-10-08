@@ -1,0 +1,42 @@
+{
+  "name": "@viiinzzz/featurebook-scrum",
+  "version": "3.0.0-b.6",
+  "description": "A command to scrum cucumber features",
+  "files": [
+    "/lib",
+    "index.js"
+  ],
+  "preferGlobal": true,
+  "scripts": {
+  },
+  "author": {
+    "name": "Vincent Fontaine",
+    "email": "vincentfontaine.jobs@gmail.com",
+    "url": "https://github.com/viiinzzz/"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github:viiinzzz/featurebook-js",
+    "directory": "packages/featurebook-scrum"
+  },
+  "bugs": {
+    "url": "https://github.com/viiinzzz/featurebook-js/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">= 16"
+  },
+  "dependencies": {
+    "@cucumber/cucumber": "^8.7.0",
+    "@viiinzzz/featurebook-feature": "^3.0.0-b.6",
+    "colors": "^1.4.0",
+    "globby": "^13.1.2",
+    "jest-cucumber": "^3.0.1",
+    "sort-array": "^4.1.5",
+    "table": "^6.8.0",
+    "yaml": "^2.1.3"
+  }
+}
