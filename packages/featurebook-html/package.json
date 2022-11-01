@@ -1,6 +1,6 @@
 {
   "name": "@viiinzzz/featurebook-html",
-  "version": "3.0.0-b.6",
+  "version": "3.0.0-b.11",
   "description": "FeatureBook's HTML converter",
   "main": "index.js",
   "files": [
@@ -57,15 +57,15 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@viiinzzz/featurebook-api": "^3.0.0-b.6",
-    "@viiinzzz/featurebook-markdown": "^3.0.0-b.6",
+    "@viiinzzz/featurebook-api": "^3.0.0-b.11",
+    "@viiinzzz/featurebook-markdown": "^3.0.0-b.11",
     "colors": "^1.4.0",
     "fs-extra": "^10.1.0",
     "pug": "^3.0.2"
   },
   "devDependencies": {
     "chai": "^4.3.6",
-    "mocha": "^10.0.0",
+    "mocha": "^10.1.0",
     "nyc": "^15.1.0"
   }
 }

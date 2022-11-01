@@ -55,12 +55,13 @@ const gen = async (featuresDir, outputDir, options) => {
       outputExt: options ? options.graphics : undefined,
     });
     doc.setDocumentDefinition({});
+
     doc.setMetadata(metadata);
+    doc.printMetadata(metadata);
 
     const specTree = await api.readSpecTree(featuresDir);
 
     doc.printIndex(specTree);
-
     await doc.printNode(specTree);
 
     return doc;
@@ -81,11 +82,11 @@ const saveDryRun = async (featuresDir, outputDir, options) => {
     const dryRunOutput = YAML.stringify(JSON.parse(JSON.stringify(
       { docDefinition },
     )));
-    console.log(
+    console.warn(
       '---dry-run---\n',
       dryRunOutput
-        .replace(/(\s+data:[^;]+;base64,).*/g, '$1...')
-        // .replace(/(\s*data: .*)/g, '$1'.green),
+        .replace(/(\s+data:[^;]+;base64,).*/g, '$1...'),
+      // .replace(/(\s*data: .*)/g, '$1'.green),
     );
   } catch (err) {
     const code = err.code ? ` (${err.code})` : '';
@@ -93,7 +94,6 @@ const saveDryRun = async (featuresDir, outputDir, options) => {
       `pdf save failure${code}
 ${outputFile.gray}
 ${err.code ? '' : err.message}`,
-      err,
     );
     return;
   }
@@ -118,18 +118,15 @@ const save = async (featuresDir, outputDir, options) => {
     await doc.save(outputFile);
   } catch (err) {
     const code = err.code ? ` (${err.code})` : '';
-    logError(
-      `pdf save failure${code}
+    logError(`pdf save failure${code}
 ${outputFile.gray}
-${err.code ? '' : err.message}`,
-      err,
-    );
+${err.code ? '' : err.message}`, err);
     return;
   }
 
   log(`${outputFile.gray}
 done.`);
-  if (options.open) {
+  if (options.open && !global.puppeteerError) {
     opener(outputFile);
   }
 };

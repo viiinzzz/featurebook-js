@@ -7,13 +7,18 @@ const PdfPrinter = require('pdfmake');
 
 const {
   getParts,
-  IsImagePart,
+  parsePart,
   getImageData,
   clearCache,
   Debug: mdPartImageDebug,
 } = require('./mdPartImage');
 
-const maxImageWidth = 505;
+const mm2pt = (mm) => mm * 2.835;
+const cm2pt = (cm) => cm * 28.35;
+const pageWidth = cm2pt(21);
+const pageHeight = cm2pt(29.7);
+const maxImageWidth = cm2pt(17.8);
+const maxImageHeight = cm2pt(25.1);
 
 const {
   debug,
@@ -41,12 +46,24 @@ const loadLib = async () => {
 
 const cucumberIconName = 'cucumber128.png';
 const cucumberIconId = 'cucumber';
-const cucumberIcon = `data:image/png;base64,${fs.readFileSync(
-  path.join(__dirname, cucumberIconName), 'base64')}`;
+const cucumberIcon = `data:image/png;base64,${fs.readFileSync(path.join(__dirname, cucumberIconName), 'base64')}`;
 
 const buildinImages = {
-  [cucumberIconId]: cucumberIcon,
+  [`!${cucumberIconId}`]: cucumberIcon,
 };
+
+const element2Block = (element) => ({
+  table: {
+    headerRows: 0,
+    widths: ['*'],
+    // body: [...body],
+    body: [[element]],
+  },
+  layout: {
+    defaultBorder: false,
+    // fillColor: '#ddd',
+  },
+});
 
 class FeaturebookPdfGenerator {
   constructor({ featuresDir, fonts, outputExt }) {
@@ -61,7 +78,7 @@ class FeaturebookPdfGenerator {
         font: 'Anaheim',
         fontSize: 12,
       },
-      pageSize: 'A4',
+      pageSize: { width: pageWidth, height: pageHeight },
       info: {},
       styles: {
         header1: { fontSize: 24, bold: true, marginBottom: 5 },
@@ -105,17 +122,9 @@ class FeaturebookPdfGenerator {
     this.docDefinition.footer[2].text = metadata.title ? metadata.title : 'Untitled';
 
     if (Object.prototype.hasOwnProperty.call(metadata, 'authors')) {
-      this.docDefinition.info.Author = metadata.authors.map(this.formatName).join(', ');
-    }
-
-    this.printTitle(metadata);
-
-    if (Object.prototype.hasOwnProperty.call(metadata, 'authors')) {
-      this.printHumans(metadata.authors);
-    }
-
-    if (Object.prototype.hasOwnProperty.call(metadata, 'contributors')) {
-      this.printHumans(metadata.contributors);
+      this.docDefinition.info.Author = metadata.authors.map(
+        (person) => `${person.lastName}, ${person.firstName}`,
+      ).join(', ');
     }
   }
 
@@ -131,13 +140,44 @@ class FeaturebookPdfGenerator {
 
   /*
    * print methods
+   *
+   * refer to https://pdfmake.github.io/docs/0.1/document-definition-object/styling/
    */
 
-  // eslint-disable-next-line class-methods-use-this
-  formatName(person) { return `${person.lastName}, ${person.firstName}`; }
+  printMetadata(metadata) {
+    this.printTitle(metadata);
 
-  async printFeatureIcon(options = {}, returnPrint = false) {
-    return this.printMarkdown(`![feature](!${cucumberIconId})`, options, null, returnPrint);
+    const metadataAuthorsDefined = Object.prototype.hasOwnProperty.call(metadata, 'authors');
+    if (metadataAuthorsDefined) {
+      this.docDefinition.content.push({
+        italics: true,
+        text: `\nAuthor${metadata.authors.length > 1 ? 's' : ''}:`,
+      });
+      this.docDefinition.content.push({
+        fontSize: 18,
+        // eslint-disable-next-line prefer-template
+        text: metadata.authors.map(
+          (person) => `${person.firstName} ${person.lastName}`,
+        ).join(', ') + '\n',
+      });
+    }
+
+    const metadataContributorsDefined = Object.prototype.hasOwnProperty.call(metadata, 'contributors');
+    if (metadataContributorsDefined) {
+      this.docDefinition.content.push({
+        italics: true,
+        text: `Contributor${metadata.authors.length > 1 ? 's' : ''}:`,
+      });
+      this.docDefinition.content.push({
+        fontSize: 14,
+        // eslint-disable-next-line prefer-template
+        text: metadata.contributors.filter(
+          (person) => !metadataAuthorsDefined || !metadata.authors.includes(person),
+        ).map(
+          (person) => `${person.firstName} ${person.lastName}`,
+        ).join(', ') + '\n\n\n',
+      });
+    }
   }
 
   printIndex() {
@@ -172,15 +212,13 @@ class FeaturebookPdfGenerator {
       logDebug('features', [features]);
 
       await Promise.all([features].map(async (feature) => {
-        // display cucumber icon
-        // TODO display as a bullet
-        await this.printFeatureIcon(null);
+        this.docDefinition.content.push({ text: '', margin: [0, 10, 0, 5] });
+        await this.printMarkdown(`![feature](!${cucumberIconId} =10x10)`);
 
         const featureKeyword = { text: `${feature.feature.keyword.trim()}:`, color: 'red', fontSize: 16 };
         const featureName = { text: ` ${feature.feature.name}`, fontSize: 16 };
         const text = [featureKeyword, featureName];
-        const margin = [0, 10, 0, 5];
-        this.docDefinition.content.push({ text, margin });
+        this.docDefinition.content.push({ text, margin: [0, 0, 0, 5] });
         if (feature.feature.description) {
           this.printMarkdown(feature.feature.description);
         }
@@ -196,7 +234,7 @@ class FeaturebookPdfGenerator {
       }));
     } catch (err) {
       logError(`printing feature. ${err.message}
-path: ${node.path.gray}`);
+path: ${node.path.gray}`, '\n', err);
     }
   }
 
@@ -274,53 +312,110 @@ path: ${node.path.gray}`);
     });
   }
 
-  printHumans(humans) {
-    this.docDefinition.content.push({
-      text: humans.map((name) => `${name.firstName} ${name.lastName}`).join(', '),
+  async printMarkdown1({
+    last, part,
+    markdown2pdfmake, rootdir, basedir, options,
+  }) {
+    const {
+      IsDisplayable,
+      filepath, IsImageId, imageId, width, widthPercent, height, heightPercent, fit,
+    } = parsePart({ part, rootdir, basedir });
+
+    const { elements, images } = last;
+
+    if (IsDisplayable) {
+      return this.printMarkdown1Displayable({
+        elements, images, part, filepath, IsImageId, imageId, width, widthPercent, height, heightPercent, fit,
+      });
+    }
+    return this.printMarkdown1NotDisplayable({
+      elements,
+      images,
+      part,
+      markdown2pdfmake,
+      options,
     });
   }
 
+  async printMarkdown1Displayable({
+    elements, images, part, filepath, IsImageId, imageId,
+    width, widthPercent, height, heightPercent, fit,
+  }) {
+    // put image in cache
+    if (!images[imageId]) {
+      const { image } = await getImageData(
+        // eslint-disable-next-line function-paren-newline, object-curly-newline
+        { outputExt: this.outputExt, part, filepath, IsImageId, imageId });
+      if (image) {
+        // eslint-disable-next-line no-param-reassign
+        images[imageId] = image;
+      }
+    }
+
+    const width2 = !width ? height : width;
+    const height2 = !height ? width : height;
+    const widthPoint = !width2 ? undefined : widthPercent ? maxImageWidth * width2 * 0.01 : mm2pt(width2);
+    const heightPoint = !height2 ? undefined : heightPercent ? maxImageHeight * height2 * 0.01 : mm2pt(height2);
+
+    const size = {
+      ...fit ? {
+        fit: [
+          widthPoint,
+          heightPoint,
+        ],
+      } : {
+        width: widthPoint,
+        height: heightPoint,
+      },
+    };
+
+    // logWarning({ width, widthPercent, height, heightPercent, part, size });
+
+    elements.push(element2Block({
+      image: imageId,
+      ...size,
+      maxWidth: maxImageWidth,
+    }));
+
+    if (debug) logDebug(`pdf: include\n       ${part.gray}`);
+
+    return { elements, images };
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  printMarkdown1NotDisplayable({
+    elements, images, part,
+    markdown2pdfmake, options,
+  }) {
+    const element = markdown2pdfmake(part).map(
+      (paragraph) => [{ ...paragraph, ...options }],
+    );
+
+    elements.push(element2Block(element));
+
+    return { elements, images };
+  }
+
   async printMarkdown(markdown, options = {}, basedir = undefined, returnPrint = false) {
+    // console.warn('printMarkdown...............\n'.yellow, markdown.replace(/[\n]/gm, '⤶\n').gray);
+    const parts = await getParts(markdown.replace(/[\n]/gm, '\n\n'));
+    // console.warn('printMarkdown...............parts\n'.yellow, parts);
+
     const markdown2pdfmake = await use('markdown2pdfmake');
     const basedir2 = basedir || path.join(process.cwd(), this.featuresDir, '/');
-
-    const images = {};
-    const elements = await getParts(markdown)
-      // sequentially asynchronous
-      .reduce((last, part) => last.then(async () => {
-        // eslint-disable-next-line no-shadow
-        const basedir = basedir2;
-        let element = {};
-        const { IsImage, imageId } = IsImagePart({ part, basedir });
-        if (IsImage) {
-          if (!images[imageId]) {
-            const { image } = await getImageData({ part, basedir, outputExt: this.outputExt });
-            if (image) images[imageId] = image;
-          }
-          element = {
-            maxWidth: maxImageWidth,
-            image: imageId,
-          };
-          if (debug) logDebug(`pdf: include\n       ${part.gray}`);
-        } else {
-          element = markdown2pdfmake(part)
-            .map((paragraph) => [{ ...paragraph, ...options }]);
-        }
-
-        const ret = {
-          table: {
-            headerRows: 0,
-            widths: ['*'],
-            // body: [...body],
-            body: [[element]],
-          },
-          layout: {
-            defaultBorder: false,
-            fillColor: '#ddd',
-          },
-        };
-        return [...await last, ret];
-      }), Promise.resolve([]));
+    const { elements, images } = await parts
+      .reduce(// sequentially asynchronous
+        (last, part) => last
+          .then(async () => this.printMarkdown1({
+            markdown2pdfmake,
+            part,
+            options,
+            last: await last,
+            rootdir: path.join((!basedir ? '' : basedir), '/'),
+            basedir: path.join(basedir2, '/'),
+          })),
+        Promise.resolve({ elements: [], images: {} }),
+      );
 
     let ret = null;
     if (returnPrint) ret = elements;

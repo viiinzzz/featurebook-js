@@ -1,3 +1,10 @@
+// match markdown images
+// ie. ![caption](!imageId) builtin image
+// ie. ![caption](relpath) relative file path
+// ie. ![caption](relpath =widthxheight) for width and height constraints, in mm
+// ie. ![caption](relpath =width%xheight%) in page size percent
+// ie. ![caption](relpath ~widthxheight) fit in rectangle
+
 require('colors');
 const fs = require('fs');
 const fsp = require('fs/promises');
@@ -37,8 +44,7 @@ const getCache = (filepath) => {
 
 const AsData = (data, type) => `data:${type};base64,${data.toString('base64')}`;
 
-const invalidIcon = `data:image/png;base64,${fs.readFileSync(
-  path.join(__dirname, 'redcross32.png'), 'base64')}`;
+const invalidIcon = `data:image/png;base64,${fs.readFileSync(path.join(__dirname, 'redcross32.png'), 'base64')}`;
 
 const webImageFormats = ['png', 'gif', 'jpg', 'jpeg', 'avif', 'apng', 'webp', 'svg'];
 
@@ -50,55 +56,122 @@ const getFileExt = (file) => {
 
 const IsWebImage = (file) => webImageFormats.includes(getFileExt(file));
 
-const imagePartRx = /(!\[.+]\([^)]+\))/g;
-const imagePartRx2 = /!\[.+]\(([^)]+)\)/;
+const displayablePartRx0 = /(!\[.+]\([^)]+\))/g;
+const displayablePartRx = /^(!\[.+]\([^)]+\))$/g;
+const displayablePartRx2 = /^!\[.+]\(([^)]+)\)$/;
+const pathWhRx = /^(.*) ([~=])((\d+)([%]*)x(\d*)([%]*)|(\d*)([%]*)x(\d+)([%]*))?$/gi;
 
-const getParts = (md) => md.split(imagePartRx).map((e) => e.trim()).filter(Boolean);
+// due to async, regexp can go impredictible, so it is better to clone before to use
+const cloneRx = (Rx) => new RegExp(Rx.source, Rx.flags);
 
-const parsePart = ({ part, basedir }) => {
-  const relpath = part.replace(imagePartRx2, '$1');
+const getParts = (md) => md.split(cloneRx(displayablePartRx0))
+  .map((e) => e.trim())
+  .filter(Boolean);
+
+const parsePart = ({ part, rootdir, basedir }) => {
+  const ExclamationMarkStart = part.startsWith('!');
+  const SingleLine = !part.includes('\n');
+  const IsMarkdownDisplayable = cloneRx(displayablePartRx).test(part);
+  const IsDisplayable = ExclamationMarkStart && SingleLine && IsMarkdownDisplayable;
+
+  // logDebug(
+  //   (IsDisplayable ? 'parsePart\n'.green : 'parsePart\n'.red),
+  //   `'${part.replace(/[\r]/sg, '␍').replace(/[\n]/sg, '⤶\n').gray}'\n`,
+  //   // eslint-disable-next-line object-curly-newline
+  //   { basedir, IsDisplayable, ExclamationMarkStart, SingleLine, IsMarkdownDisplayable },
+  // );
+
+  if (!IsDisplayable) {
+    return {
+      IsDisplayable: false,
+    };
+  }
+  const relpathWh = part.replace(cloneRx(displayablePartRx2), '$1');
+  const pathWhMatch = cloneRx(pathWhRx).exec(relpathWh);
+  // eslint-disable-next-line one-var, one-var-declaration-per-line
+  let relpath, fit, widthStr, widthPercent, heightStr, heightPercent;
+  if (!pathWhMatch) {
+    relpath = relpathWh;
+  } else {
+    relpath = `${pathWhMatch[1] ? pathWhMatch[1] : ''}`;
+    fit = pathWhMatch[2] === '~';
+    widthStr = `${pathWhMatch[4] ? pathWhMatch[4] : ''}${pathWhMatch[8] ? pathWhMatch[8] : ''}`;
+    heightStr = `${pathWhMatch[6] ? pathWhMatch[6] : ''}${pathWhMatch[10] ? pathWhMatch[10] : ''}`;
+    widthPercent = `${pathWhMatch[5] ? pathWhMatch[5] : ''}${pathWhMatch[9] ? pathWhMatch[11] : ''}`.length > 0;
+    heightPercent = `${pathWhMatch[7] ? pathWhMatch[7] : ''}${pathWhMatch[9] ? pathWhMatch[11] : ''}`.length > 0;
+  }
+  const width = !widthStr || !widthStr.length ? undefined : Number.parseInt(widthStr, 10);
+  const height = !heightStr || !heightStr.length ? undefined : Number.parseInt(heightStr, 10);
+
   const IsImageId = relpath.startsWith('!');
+
   const ImageId = !IsImageId ? undefined
-    : relpath.substring(1);
+    : relpath.substring(0);
+
   const filepath = IsImageId ? undefined
     : path.join(basedir, relpath);
+
+  const filepathrel = !filepath ? undefined
+    : `__${filepath.startsWith(rootdir)
+      ? filepath.substring(rootdir.length)
+      : filepath}__`;
+
   const imageId = IsImageId ? ImageId
-    : filepath.replace(/[/\\:]+/g, '-').replace(/[ .]/g, '_');
+    : filepathrel.replace(/[/\\:]+/g, '-').replace(/[ .]/gi, '_');
+
+  // logWarning(
+  //   'parsePart\n'.blue,
+  //   `'${part.replace(/[\r]/sg, '␍').replace(/[\n]/sg, '⤶\n').gray}'\n`,
+  //   // eslint-disable-next-line object-curly-newline
+  //   {
+  //     // eslint-disable-next-line object-property-newline
+  //     IsDisplayable, filepath, IsImageId, imageId,
+  //     // eslint-disable-next-line object-property-newline
+  //     width, height, widthPercent, heightPercent, fit,
+  //   },
+  // );
 
   return {
+    IsDisplayable: true,
     relpath,
     filepath,
     imageId,
     IsImageId,
-  };
-};
-
-const IsImagePart = ({ part, basedir }) => {
-  const { imageId } = parsePart({ part, basedir });
-  const IsImage = part.match(imagePartRx);
-  if (IsImage) {
-    return {
-      IsImage,
-      imageId,
-    };
-  }
-  return {
-    IsImage,
+    fit,
+    width,
+    widthPercent,
+    height,
+    heightPercent,
   };
 };
 
 /*
   an image part sourcing a file: ![caption](filePath)
+  an image part sourcing a file: ![caption](filePath =widthxheight)
   an image part sourcing data referenced by an imageId: ![caption](!imageId)
 */
-const getImageData = async ({ part, basedir, outputExt }) => {
+const getImageData = async ({
+  part, outputExt,
+  filepath, IsImageId, imageId,
+}) => {
   await loadLib();
 
-  const { filepath, imageId, IsImageId } = parsePart({ part, basedir });
+  // logWarning("getImageData".blue, {
+  //   part, outputExt,
+  //   filepath, IsImageId, imageId,
+  // });
 
-  try {
-    if (IsImageId) {
-      return { imageId };
+  if (IsImageId) {
+    return { imageId };
+  }
+
+  {
+    if (!filepath) {
+      throw new Error(`getImageData: missing filepath\n${part}`);
+    }
+
+    if (!outputExt) {
+      throw new Error(`parsePart failed: missing outputExt\n${part}`);
     }
 
     if (IsWebImage(filepath)) {
@@ -107,6 +180,7 @@ const getImageData = async ({ part, basedir, outputExt }) => {
 
       if (debug) logDebug(`markdown part: load image\n       ${filepath.gray}`);
 
+      // eslint-disable-next-line object-curly-newline
       return { image, imageId };
     }
 
@@ -116,23 +190,18 @@ const getImageData = async ({ part, basedir, outputExt }) => {
 
       if (debug) logDebug(`markdown part: convert diagram to image\n       ${filepath.gray}`);
 
+      // eslint-disable-next-line object-curly-newline
       return { image, imageId };
     }
 
     const message = `markdown part: unsupported extension:\n${part}`;
-    throw new Error(message);
-  } catch (err) {
-    logError(`getPartImage failed. ${err.message}
-file: ${filepath.gray}
-`, err);
-
-    return { image: invalidIcon, imageId };
+    return { image: invalidIcon, imageId, error: message };
   }
 };
 
 module.exports = {
   getParts,
-  IsImagePart,
+  parsePart,
   getImageData,
   clearCache,
   Debug,

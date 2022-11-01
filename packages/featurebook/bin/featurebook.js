@@ -6,8 +6,12 @@ const fsp = require('fs/promises');
 const path = require('path');
 
 global.packageTest = process.env.LOCAL_ENVIRONMENT === 'test';
-if (global.packageTest) console.warn(`packageTest: ${'on'.bold}`);
-// else console.warn(`packageTest: ${'off'.bold}`);
+if (global.packageTest) {
+  console.warn(`${'packageTest: on'.gray}
+${'cwd: '.gray}${process.cwd().gray}`);
+}
+// else console.warn('packageTest: off'.gray);
+
 const use = require('./use')('../package.json');
 const { version } = require('../package.json');
 

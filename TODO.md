@@ -1,11 +1,12 @@
 
-# todo
+# progress
+- parse `CR` in markdown as `<br>`....
+- include in real project. partially tested ....
+- featurebookignore by default ... *.md *.puml *.mmd *.png *.jpg *.jpeg *.gif *.scrum *.sprint
+- puppeteer not available should halt the program currently gen pdf anyway, just don't open ....
 
+# todo
+- check package publish with lerna currently not working
 - fix svg graphics. currently only png output works
-- how to display image as a bullet?
-- use bullet in title, ie. [cucumber icon] Feature xxxx
-- parse `CR` in markdown as `<br>`
-- more story examples in features
-- more tests!!
-- check package publish
-- include in real project
+- internal links not working in pdf
+- html feature gen not working

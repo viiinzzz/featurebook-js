@@ -1,13 +1,13 @@
 {
   "name": "@viiinzzz/featurebook-feature",
-  "version": "3.0.0-b.6",
+  "version": "3.0.0-b.11",
   "description": "A command to display cucumber features",
   "files": [
-    "/lib"
+    "/lib",
+    "index.js"
   ],
   "preferGlobal": true,
-  "scripts": {
-  },
+  "scripts": {},
   "author": {
     "name": "Vincent Fontaine",
     "email": "vincentfontaine.jobs@gmail.com",
@@ -34,8 +34,5 @@
     "cucumber": "^6.0.7",
     "globby": "^13.1.2",
     "jest-cucumber": "^3.0.1"
-  },
-  "devDependencies": {
-    "open-cli": "^7.1.0"
   }
 }

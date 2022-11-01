@@ -112,7 +112,6 @@ describe('featurebook-api', () => {
     });
   });
 
-
   xdescribe('#readMetadata', () => {
     it('should propagate null given a specification directory without the metadata descriptor', (done) => {
       featurebook.readMetadata('test/resources/features', (err, metadata) => {
@@ -153,7 +152,6 @@ describe('featurebook-api', () => {
       });
     });
   });
-
 
   xdescribe('#readSummary', () => {
     it('should propagate null given a directory without the summary file', (done) => {

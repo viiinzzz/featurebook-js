@@ -7,7 +7,7 @@ const {
 } = require('../test.helpers');
 
 given('I have a folder with .feature files', () => {
-  const folder = '../features.simple';
+  const folder = '../../test/features.simple';
   when('I run command ‘list’', () => {
     then_wait_at_most(one_minute)
       .that('it generates expected output to the console', async () => {

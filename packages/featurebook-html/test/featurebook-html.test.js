@@ -1,4 +1,3 @@
-
 const chai = require('chai');
 const featurebookHtml = require('../lib/featurebook-html');
 
