@@ -105,17 +105,9 @@ class FeaturebookPdfGenerator {
     this.docDefinition.footer[2].text = metadata.title ? metadata.title : 'Untitled';
 
     if (Object.prototype.hasOwnProperty.call(metadata, 'authors')) {
-      this.docDefinition.info.Author = metadata.authors.map(this.formatName).join(', ');
-    }
-
-    this.printTitle(metadata);
-
-    if (Object.prototype.hasOwnProperty.call(metadata, 'authors')) {
-      this.printHumans(metadata.authors);
-    }
-
-    if (Object.prototype.hasOwnProperty.call(metadata, 'contributors')) {
-      this.printHumans(metadata.contributors);
+      this.docDefinition.info.Author = metadata.authors.map(
+        (person) => `${person.lastName}, ${person.firstName}`,
+      ).join(', ');
     }
   }
 
@@ -133,11 +125,30 @@ class FeaturebookPdfGenerator {
    * print methods
    */
 
-  // eslint-disable-next-line class-methods-use-this
-  formatName(person) { return `${person.lastName}, ${person.firstName}`; }
+  printMetadata(metadata) {
+    this.printTitle(metadata);
 
-  async printFeatureIcon(options = {}, returnPrint = false) {
-    return this.printMarkdown(`![feature](!${cucumberIconId})`, options, null, returnPrint);
+    if (Object.prototype.hasOwnProperty.call(metadata, 'authors')) {
+      this.docDefinition.content.push({
+        text: `author${metadata.authors.length > 1 ? 's' : ''}:`,
+      });
+      this.docDefinition.content.push({
+        text: metadata.authors.map(
+          (person) => `${person.firstName} ${person.lastName}`,
+        ).join(', '),
+      });
+    }
+
+    if (Object.prototype.hasOwnProperty.call(metadata, 'contributors')) {
+      this.docDefinition.content.push({
+        text: `contributor${metadata.authors.length > 1 ? 's' : ''}:`,
+      });
+      this.docDefinition.content.push({
+        text: metadata.contributors.map(
+          (person) => `${person.firstName} ${person.lastName}`,
+        ).join(', '),
+      });
+    }
   }
 
   printIndex() {
@@ -172,9 +183,7 @@ class FeaturebookPdfGenerator {
       logDebug('features', [features]);
 
       await Promise.all([features].map(async (feature) => {
-        // display cucumber icon
-        // TODO display as a bullet
-        await this.printFeatureIcon(null);
+        await this.printMarkdown(`![feature](!${cucumberIconId})`);
 
         const featureKeyword = { text: `${feature.feature.keyword.trim()}:`, color: 'red', fontSize: 16 };
         const featureName = { text: ` ${feature.feature.name}`, fontSize: 16 };
@@ -274,24 +283,18 @@ path: ${node.path.gray}`);
     });
   }
 
-  printHumans(humans) {
-    this.docDefinition.content.push({
-      text: humans.map((name) => `${name.firstName} ${name.lastName}`).join(', '),
-    });
-  }
-
   async printMarkdown(markdown, options = {}, basedir = undefined, returnPrint = false) {
     const markdown2pdfmake = await use('markdown2pdfmake');
     const basedir2 = basedir || path.join(process.cwd(), this.featuresDir, '/');
 
     const images = {};
-    const elements = await getParts(markdown)
+    const elements = await getParts(markdown.replace(/[\n]/gm, '\n\n'))
       // sequentially asynchronous
       .reduce((last, part) => last.then(async () => {
         // eslint-disable-next-line no-shadow
         const basedir = basedir2;
         let element = {};
-        const { IsImage, imageId } = IsImagePart({ part, basedir });
+        const { IsImage, imageId, width, height } = IsImagePart({ part, basedir });
         if (IsImage) {
           if (!images[imageId]) {
             const { image } = await getImageData({ part, basedir, outputExt: this.outputExt });
@@ -300,11 +303,14 @@ path: ${node.path.gray}`);
           element = {
             maxWidth: maxImageWidth,
             image: imageId,
+            width,
+            height,
           };
           if (debug) logDebug(`pdf: include\n       ${part.gray}`);
         } else {
-          element = markdown2pdfmake(part)
-            .map((paragraph) => [{ ...paragraph, ...options }]);
+          element = markdown2pdfmake(part).map(
+            (paragraph) => [{ ...paragraph, ...options }],
+          );
         }
 
         const ret = {
@@ -316,7 +322,7 @@ path: ${node.path.gray}`);
           },
           layout: {
             defaultBorder: false,
-            fillColor: '#ddd',
+            // fillColor: '#ddd',
           },
         };
         return [...await last, ret];

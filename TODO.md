@@ -1,11 +1,20 @@
 
-# todo
+# progress
+- use bullet in title, ie. [cucumber icon] Feature xxxx ....
+- parse `CR` in markdown as `<br>`....
+- include in real project. partially tested ....
+- remove gray background in pictures and md lists ....
+- add author/contributor legend ....
+- featurebookignore by default ... *.md *.puml *.mmd *.png *.jpg *.jpeg *.gif *.scrum *.sprint
+- puppeteer not available should halt the program currently gen pdf anyway, just don't open ....
+- support md image size [](path =wwwxhhh) ....
+- support md image size [](path =wwwx)
+- support md image size [](path =xhhh)
 
-- fix svg graphics. currently only png output works
-- how to display image as a bullet?
-- use bullet in title, ie. [cucumber icon] Feature xxxx
-- parse `CR` in markdown as `<br>`
+# todo
 - more story examples in features
 - more tests!!
-- check package publish
-- include in real project
+- check package publish with lerna currently not working
+- fix svg graphics. currently only png output works
+- internal links not working in pdf
+- html feature gen not working

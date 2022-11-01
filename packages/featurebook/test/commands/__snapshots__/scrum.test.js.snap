@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`I have a folder with .feature files I run command ‘scrum’ it generates expected output to the console 1`] = `
-"featurebook v3.0.0-b.6 scrum:
+"featurebook v3.0.0-b.7 scrum:
 
 
 ┌─────────────────────────────────────────────┐

@@ -52,38 +52,52 @@ const IsWebImage = (file) => webImageFormats.includes(getFileExt(file));
 
 const imagePartRx = /(!\[.+]\([^)]+\))/g;
 const imagePartRx2 = /!\[.+]\(([^)]+)\)/;
+const pathWhRx = /^(.*) =((\d+)x(\d*)|(\d*)x(\d+))?$/gi;
 
 const getParts = (md) => md.split(imagePartRx).map((e) => e.trim()).filter(Boolean);
 
 const parsePart = ({ part, basedir }) => {
-  const relpath = part.replace(imagePartRx2, '$1');
+  const relpatWh = part.replace(imagePartRx2, '$1');
+  const pathWhMatch = pathWhRx.exec(relpatWh);
+  let relpath; let width; let height;
+  if (!pathWhMatch || pathWhMatch.length < 6) {
+    relpath = relpatWh;
+  } else {
+    relpath = `${pathWhMatch[1]}`;
+    width = `${pathWhMatch[3]}${pathWhMatch[5]}`;
+    height = `${pathWhMatch[4]}${pathWhMatch[4]}`;
+  }
   const IsImageId = relpath.startsWith('!');
   const ImageId = !IsImageId ? undefined
     : relpath.substring(1);
   const filepath = IsImageId ? undefined
     : path.join(basedir, relpath);
   const imageId = IsImageId ? ImageId
-    : filepath.replace(/[/\\:]+/g, '-').replace(/[ .]/g, '_');
+    : filepath.replace(/[/\\:]+/g, '-').replace(/[ .]/gi, '_');
 
   return {
     relpath,
     filepath,
     imageId,
     IsImageId,
+    width: !width || !width.length ? undefined : Number.parseInt(width, 10),
+    height: !height || !height.length ? undefined : Number.parseInt((height, 10),
   };
 };
 
 const IsImagePart = ({ part, basedir }) => {
-  const { imageId } = parsePart({ part, basedir });
+  const { imageId, width, height } = parsePart({ part, basedir });
   const IsImage = part.match(imagePartRx);
   if (IsImage) {
     return {
       IsImage,
       imageId,
+      width, height,
     };
   }
   return {
     IsImage,
+    width, height,
   };
 };
 
@@ -94,11 +108,11 @@ const IsImagePart = ({ part, basedir }) => {
 const getImageData = async ({ part, basedir, outputExt }) => {
   await loadLib();
 
-  const { filepath, imageId, IsImageId } = parsePart({ part, basedir });
+  const { filepath, imageId, IsImageId, width, height } = parsePart({ part, basedir });
 
   try {
     if (IsImageId) {
-      return { imageId };
+      return { imageId, width, height };
     }
 
     if (IsWebImage(filepath)) {
@@ -107,7 +121,7 @@ const getImageData = async ({ part, basedir, outputExt }) => {
 
       if (debug) logDebug(`markdown part: load image\n       ${filepath.gray}`);
 
-      return { image, imageId };
+      return { image, imageId, width, height };
     }
 
     if (d2i.IsDiagram(filepath)) {
@@ -116,7 +130,7 @@ const getImageData = async ({ part, basedir, outputExt }) => {
 
       if (debug) logDebug(`markdown part: convert diagram to image\n       ${filepath.gray}`);
 
-      return { image, imageId };
+      return { image, imageId, width, height };
     }
 
     const message = `markdown part: unsupported extension:\n${part}`;

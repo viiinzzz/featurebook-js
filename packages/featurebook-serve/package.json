@@ -60,7 +60,7 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@viiinzzz/featurebook-api": "^3.0.0-b.6",
+    "@viiinzzz/featurebook-api": "^3.0.0-b.7",
     "@viiinzzz/featurebook-markdown": "^3.0.0-b.6",
     "express": "^4.18.2"
   },

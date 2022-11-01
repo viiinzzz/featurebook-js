@@ -1,6 +1,6 @@
 {
   "name": "@viiinzzz/featurebook-pdf",
-  "version": "3.0.0-b.6",
+  "version": "3.0.0-b.7",
   "description": "FeatureBook's PDF converter",
   "main": "index.js",
   "files": [
@@ -61,8 +61,9 @@
     "jsdom": "^20.0.2",
     "opener": "^1.5.2",
     "pdfmake": "^0.2.6",
-    "@viiinzzz/featurebook-api": "^3.0.0-b.6",
-    "@viiinzzz/markdown2pdfmake": "^1.1.0"
+    "@viiinzzz/featurebook-api": "^3.0.0-b.7",
+    "@viiinzzz/markdown2pdfmake": "^1.1.0",
+    "@viiinzzz/diagram2image": "3.0.0-b.8"
   },
   "devDependencies": {
     "chai": "^4.3.6",

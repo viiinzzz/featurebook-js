@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`I have a folder with .feature files I run command ‘list’ it generates expected output to the console 1`] = `
-"featurebook v3.0.0-b.6 feature:
+"featurebook v3.0.0-b.7 feature:
 
 --------------------------------------------------------------------------------------
 

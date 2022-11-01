@@ -116,8 +116,10 @@ async function convert(input, output) {
     prerequisites = await checkPrerequisites();
 
   const abort = prerequisites !== true;
-  if (abort)
+  if (abort) {
+    global.puppeteerError = true;
     throw new Error(`puppeteer not available.`);
+  }
 
   const inputExt = getFileExt(input);
   const outputExt = getFileExt(output);

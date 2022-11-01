@@ -1,9 +1,10 @@
 {
   "name": "@viiinzzz/diagram2image",
-  "version": "3.0.0-b.6",
+  "version": "3.0.0-b.8",
   "description": "A lib to convert puml (plantuml diagrams) and mmd (mermaid diagrams) to images",
   "files": [
-    "/lib"
+    "/lib",
+    "index.js"
   ],
   "author": {
     "name": "Vincent Fontaine",
@@ -29,7 +30,7 @@
     "@mermaid-js/mermaid-cli": "^9.1.7",
     "colors": "^1.4.0",
     "node-plantuml-latest": "^2.3.0",
-    "puppeteer": "^19.0.0",
+    "puppeteer": "^19.2.0",
     "stream-buffers":"^3.0.2",
     "tempy": "^3.0.0"
   },

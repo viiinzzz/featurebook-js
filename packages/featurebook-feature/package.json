@@ -1,9 +1,10 @@
 {
   "name": "@viiinzzz/featurebook-feature",
-  "version": "3.0.0-b.6",
+  "version": "3.0.0-b.7",
   "description": "A command to display cucumber features",
   "files": [
-    "/lib"
+    "/lib",
+    "index.js"
   ],
   "preferGlobal": true,
   "scripts": {
