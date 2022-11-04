@@ -1,6 +1,6 @@
 {
   "name": "@viiinzzz/featurebook-pdf",
-  "version": "3.0.0-b.7",
+  "version": "3.0.0-b.9",
   "description": "FeatureBook's PDF converter",
   "main": "index.js",
   "files": [
@@ -67,8 +67,6 @@
   },
   "devDependencies": {
     "chai": "^4.3.6",
-    "mocha": "^10.1.0",
-    "nyc": "^15.1.0",
     "yaml": "^2.1.3"
   }
 }
