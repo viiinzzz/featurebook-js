@@ -9,7 +9,6 @@ coverage/
 .nyc_output/
 
 dist/
-package-lock.json
 features/dist/
 features/assets/
 

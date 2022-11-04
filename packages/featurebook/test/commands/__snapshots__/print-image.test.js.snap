@@ -1,0 +1,8 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`I have spec with an image I dry-run command ‘print’ it generates expected output to the console 1`] = `
+"featurebook v3.0.0-b.9 pdf:
+[90m..\\..\\test\\print-image\\dist\\pdf\\specification.pdf[39m
+done.
+"
+`;

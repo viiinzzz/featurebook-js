@@ -32,11 +32,18 @@ const node = async ({
 }) => {
   const optionsStr = !options || !options.length ? '' : ` ${options}`;
   const command = `node ${program}${optionsStr}`;
-  const str = run({
+  const stringOutput = run({
     cwd: rootdir,
     command,
   });
-  if (!outputFile || !outputFile.length) return str;
+  if (!outputFile || !outputFile.length) {
+    return stringOutput;
+  }
+  if (!fs.existsSync(outputFile)) {
+    console.error(`${'error:'.red} outputFile not generated
+${outputFile.gray}`);
+    return stringOutput;
+  }
   const buffer = await fsp.readFile(outputFile);
   return buffer;
 };
@@ -71,9 +78,16 @@ const cleanupFile = async (filePath) => {
   }
 };
 
-const length_at_least = (length) => (buffer) =>
+const buffer_length_at_least = (minLength) => (buffer) =>
   // eslint-disable-next-line implicit-arrow-linebreak
-  buffer && buffer.length > length;
+  buffer && Buffer.isBuffer(buffer)
+  && buffer.length >= minLength;
+
+const buffer_length_between = (minLength, maxLength) => (buffer) =>
+  // eslint-disable-next-line implicit-arrow-linebreak
+  buffer && Buffer.isBuffer(buffer)
+  && buffer.length >= minLength
+  && (!maxLength || buffer.length <= maxLength);
 
 // eslint-disable-next-line import/no-extraneous-dependencies
 const chai = require('chai');
@@ -104,7 +118,7 @@ module.exports = {
   Iwant: chai_expect, should,
   given, when, then, then_wait_at_most, before, after,
   rootdir, node, node_error, cleanupFile,
-  content_is_valid_pdf, length_at_least,
+  content_is_valid_pdf, buffer_length_at_least, buffer_length_between,
   ten_seconds: 10000,
   thirty_seconds: 30000,
   one_minute: 60000,

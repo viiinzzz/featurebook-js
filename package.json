@@ -3,20 +3,42 @@
   "private": true,
   "license": "MIT",
   "scripts": {
-    "clean": "lerna clean --yes",
     "bootstrap": "lerna bootstrap --no-ci",
     "fix-lock-files": "npm run clean && npm run bootstrap",
     "update": "npm update && rm -rf node_modules package-lock.json && env CI=1 npm i && npm dedup && lerna exec --parallel --no-bail 'npm update && rm -rf node_modules package-lock.json && env CI=1 npm i && npm dedup' && npm run fix-lock-files",
-    "lint": "eslint --ignore-path .gitignore packages/**/{bin,lib,test}/*.js"
+    "lint": "eslint --ignore-path .gitignore packages/**/{bin,lib,test}/*.js",
+    "lintfix": "eslint --fix --ignore-path .gitignore packages/**/{bin,lib,test}/*.js",
+    "depcheck": "run-script-os",
+    "depcheck:linux": "cd scripts.linux&&bash ./depcheck.sh",
+    "depcheck:windows": "cd scripts.windows&&depcheck",
+    "unimported": "run-script-os",
+    "unimported:linux": "cd scripts.linux&&bash ./unimported.sh",
+    "unimported:windows": "cd scripts.windows&&unimported",
+    "dry": "run-script-os",
+    "dry:linux": "cd scripts.linux&&bash ./dryrun.sh",
+    "dry:windows": "cd scripts.windows&&dryrun",
+    "test": "cross-env LOCAL_ENVIRONMENT=test jest --coverage",
+    "list": "npx lerna list",
+    "graph": "npx nx graph",
+    "vup": "npx lerna version --ignore-changes markdown2pdfmake",
+    "pub": "npx lerna publish --no-private --ignore-changes markdown2pdfmake",
+    "clean": "npx lerna clean --yes",
+    "upd": "run-script-os",
+    "upd:linux": "cd scripts.linux&&bash ./update.sh",
+    "upd:windows": "cd scripts.windows&&update"
   },
   "devDependencies": {
-    "eslint": "^8.26.0",
+    "cross-env": "^7.0.3",
+    "depcheck": "^1.4.3",
+    "eslint": "^8.27.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-plugin-import": "^2.26.0",
     "husky": "^8.0.1",
     "jest": "^29.2.2",
     "lerna": "^6.0.1",
-    "lint-staged": "^13.0.3"
+    "lint-staged": "^13.0.3",
+    "run-script-os": "^1.1.6",
+    "unimported": "^1.22.0"
   },
   "husky": {
     "hooks": {
@@ -28,5 +50,6 @@
       "eslint --fix",
       "git add"
     ]
-  }
+  },
+  "version": "0.0.0"
 }

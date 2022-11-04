@@ -1,0 +1,11 @@
+# default ignore featurebook.json, SUMMARY.md, .featurebookignore, assets, dist, .git
+
+pdf/
+*.jpg
+*.jpeg
+*.gif
+*.png
+*.puml
+*.mmd
+*.sprint
+*.scrum
