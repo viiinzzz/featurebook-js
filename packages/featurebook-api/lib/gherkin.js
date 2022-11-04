@@ -42,7 +42,7 @@ const parse = async (featureFile) => {
   const builder = new AstBuilder(newId);
   const matcher = new GherkinClassicTokenMatcher();
   const parser = new Parser(builder, matcher);
-  //parser.stopAtFirstError = false;
+  // parser.stopAtFirstError = false;
 
   try {
     return parser.parse(text);

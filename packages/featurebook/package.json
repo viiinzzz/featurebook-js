@@ -1,6 +1,6 @@
 {
   "name": "@viiinzzz/featurebook",
-  "version": "3.0.0-b.7",
+  "version": "3.0.0-b.9",
   "description": "A command line tool (and Node.js library) for generating beautiful system specifications from Gherkin source files.",
   "bin": {
     "featurebook": "./bin/featurebook.js"
@@ -11,7 +11,18 @@
   "preferGlobal": true,
   "scripts": {
     "test": "cross-env LOCAL_ENVIRONMENT=test jest --coverage",
-    "testprint": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js print --open -o ../features/dist/pdf ../features"
+    "fbprint": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js print --open -o ../../test/print-features/dist/pdf ../../test/print-features",
+    "fbprintdry": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js print --open -o ../../test/print-features/dist/pdf ../../test/print-features --dry-run",
+    "fbprintcucumber": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js print --open -o ../../test/print-cucumber/dist/pdf ../../test/print-cucumber",
+    "fbprintcucumberdry": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js print --open -o ../../test/print-cucumber/dist/pdf ../../test/print-cucumber --dry-run",
+    "fbprintimage": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js print --open -o ../../test/print-image/dist/pdf ../../test/print-image",
+    "fbprintimagedry": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js print --open -o ../../test/print-image/dist/pdf ../../test/print-image --dry-run",
+    "fbprintimageresize": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js print --open -o ../../test/print-image-resize/dist/pdf ../../test/print-image-resize",
+    "fbprintimageresizedry": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js print --open -o ../../test/print-image-resize/dist/pdf ../../test/print-image-resize --dry-run",
+    "fbserve": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js serve --port 3000 ../../test/features",
+    "fbhtml": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js html -o ../../test/features/dist/ ../../test/features",
+    "fblist": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js list ../../test/features",
+    "scrum": "cross-env LOCAL_ENVIRONMENT=test bin/featurebook.js scrum ../../test/features"
   },
   "keywords": [
     "gherkin",
@@ -61,11 +72,11 @@
     "node": ">= 8"
   },
   "dependencies": {
-    "@viiinzzz/featurebook-api": "^3.0.0-b.7",
-    "@viiinzzz/featurebook-html": "^3.0.0-b.6",
-    "@viiinzzz/featurebook-pdf": "^3.0.0-b.7",
-    "@viiinzzz/featurebook-scrum": "^3.0.0-b.7",
-    "@viiinzzz/featurebook-serve": "^3.0.0-b.6",
+    "@viiinzzz/featurebook-api": "^3.0.0-b.9",
+    "@viiinzzz/featurebook-html": "^3.0.0-b.9",
+    "@viiinzzz/featurebook-pdf": "^3.0.0-b.9",
+    "@viiinzzz/featurebook-scrum": "^3.0.0-b.9",
+    "@viiinzzz/featurebook-serve": "^3.0.0-b.9",
     "colors": "^1.4.0",
     "commander": "^9.4.1",
     "cross-env": "^7.0.3",

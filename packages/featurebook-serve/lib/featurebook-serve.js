@@ -114,7 +114,7 @@ const serve = async (featuresDir, port) => {
 
 module.exports = {
   Invoke: serve,
-  Debug
+  Debug,
 };
 serve.$imageRenderer = imageRenderer;
 serve.$linkRenderer = linkRenderer;

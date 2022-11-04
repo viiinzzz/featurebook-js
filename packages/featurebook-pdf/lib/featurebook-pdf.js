@@ -62,7 +62,6 @@ const gen = async (featuresDir, outputDir, options) => {
     const specTree = await api.readSpecTree(featuresDir);
 
     doc.printIndex(specTree);
-
     await doc.printNode(specTree);
 
     return doc;
@@ -83,11 +82,11 @@ const saveDryRun = async (featuresDir, outputDir, options) => {
     const dryRunOutput = YAML.stringify(JSON.parse(JSON.stringify(
       { docDefinition },
     )));
-    console.log(
+    console.warn(
       '---dry-run---\n',
       dryRunOutput
-        .replace(/(\s+data:[^;]+;base64,).*/g, '$1...')
-        // .replace(/(\s*data: .*)/g, '$1'.green),
+        .replace(/(\s+data:[^;]+;base64,).*/g, '$1...'),
+      // .replace(/(\s*data: .*)/g, '$1'.green),
     );
   } catch (err) {
     const code = err.code ? ` (${err.code})` : '';
@@ -119,11 +118,9 @@ const save = async (featuresDir, outputDir, options) => {
     await doc.save(outputFile);
   } catch (err) {
     const code = err.code ? ` (${err.code})` : '';
-    logError(
-      `pdf save failure${code}
+    logError(`pdf save failure${code}
 ${outputFile.gray}
-${err.code ? '' : err.message}`,
-    );
+${err.code ? '' : err.message}`, err);
     return;
   }
 

@@ -149,5 +149,5 @@ module.exports = {
   readMetadata,
   readFeatures,
   readSummary,
-  Debug
+  Debug,
 };
