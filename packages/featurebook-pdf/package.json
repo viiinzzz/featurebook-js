@@ -57,13 +57,13 @@
   },
   "license": "MIT",
   "dependencies": {
+    "@viiinzzz/diagram2image": "^3.0.0-b.9",
+    "@viiinzzz/featurebook-api": "^3.0.0-b.9",
+    "@viiinzzz/markdown2pdfmake": "^1.1.0",
     "colors": "^1.4.0",
     "jsdom": "^20.0.2",
     "opener": "^1.5.2",
-    "pdfmake": "^0.2.6",
-    "@viiinzzz/featurebook-api": "^3.0.0-b.7",
-    "@viiinzzz/markdown2pdfmake": "^1.1.0",
-    "@viiinzzz/diagram2image": "3.0.0-b.8"
+    "pdfmake": "^0.2.6"
   },
   "devDependencies": {
     "chai": "^4.3.6",

@@ -1,6 +1,6 @@
 {
   "name": "@viiinzzz/featurebook-feature",
-  "version": "3.0.0-b.7",
+  "version": "3.0.0-b.9",
   "description": "A command to display cucumber features",
   "files": [
     "/lib",

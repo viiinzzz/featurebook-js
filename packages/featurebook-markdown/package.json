@@ -1,6 +1,6 @@
 {
   "name": "@viiinzzz/featurebook-markdown",
-  "version": "3.0.0-b.6",
+  "version": "3.0.0-b.9",
   "description": "Markdown parser for FeatureBook",
   "main": "index.js",
   "files": [

@@ -72,11 +72,11 @@
     "node": ">= 8"
   },
   "dependencies": {
-    "@viiinzzz/featurebook-api": "^3.0.0-b.7",
-    "@viiinzzz/featurebook-html": "^3.0.0-b.6",
-    "@viiinzzz/featurebook-pdf": "^3.0.0-b.8",
-    "@viiinzzz/featurebook-scrum": "^3.0.0-b.7",
-    "@viiinzzz/featurebook-serve": "^3.0.0-b.6",
+    "@viiinzzz/featurebook-api": "^3.0.0-b.9",
+    "@viiinzzz/featurebook-html": "^3.0.0-b.9",
+    "@viiinzzz/featurebook-pdf": "^3.0.0-b.9",
+    "@viiinzzz/featurebook-scrum": "^3.0.0-b.9",
+    "@viiinzzz/featurebook-serve": "^3.0.0-b.9",
     "colors": "^1.4.0",
     "commander": "^9.4.1",
     "cross-env": "^7.0.3",
