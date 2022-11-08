@@ -1,6 +1,6 @@
 {
   "name": "@viiinzzz/diagram2image",
-  "version": "3.0.0-b.9",
+  "version": "3.0.0-b.10",
   "description": "A lib to convert puml (plantuml diagrams) and mmd (mermaid diagrams) to images",
   "files": [
     "/lib",
