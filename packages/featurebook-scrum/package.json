@@ -1,6 +1,6 @@
 {
   "name": "@viiinzzz/featurebook-scrum",
-  "version": "3.0.0-b.10",
+  "version": "3.0.0-b.11",
   "description": "A command to scrum cucumber features",
   "files": [
     "/lib",
@@ -30,7 +30,7 @@
   },
   "dependencies": {
     "@cucumber/cucumber": "^8.7.0",
-    "@viiinzzz/featurebook-feature": "^3.0.0-b.10",
+    "@viiinzzz/featurebook-feature": "^3.0.0-b.11",
     "colors": "^1.4.0",
     "globby": "^13.1.2",
     "jest-cucumber": "^3.0.1",

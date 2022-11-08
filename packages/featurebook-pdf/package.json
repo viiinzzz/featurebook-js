@@ -1,6 +1,6 @@
 {
   "name": "@viiinzzz/featurebook-pdf",
-  "version": "3.0.0-b.10",
+  "version": "3.0.0-b.11",
   "description": "FeatureBook's PDF converter",
   "main": "index.js",
   "files": [
@@ -57,8 +57,8 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@viiinzzz/diagram2image": "^3.0.0-b.10",
-    "@viiinzzz/featurebook-api": "^3.0.0-b.10",
+    "@viiinzzz/diagram2image": "^3.0.0-b.11",
+    "@viiinzzz/featurebook-api": "^3.0.0-b.11",
     "@viiinzzz/markdown2pdfmake": "^1.1.0",
     "colors": "^1.4.0",
     "jsdom": "^20.0.2",

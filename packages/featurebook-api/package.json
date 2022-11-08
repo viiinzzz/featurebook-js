@@ -1,6 +1,6 @@
 {
   "name": "@viiinzzz/featurebook-api",
-  "version": "3.0.0-b.10",
+  "version": "3.0.0-b.11",
   "description": "FeatureBook's API",
   "main": "index.js",
   "files": [
